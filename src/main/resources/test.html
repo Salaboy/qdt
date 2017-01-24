@@ -1,0 +1,401 @@
+<!DOCTYPE>
+
+<html>
+
+<head>
+    <title>Decision Tree</title>
+
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/cytoscape.js"></script>
+    <script src="js/cytoscape-edgehandles.js"></script>
+    <script src="js/jsoneditor.js"></script>
+    <!-- Foundation CSS framework (Bootstrap and jQueryUI also supported) -->
+    <link rel='stylesheet' href='//cdn.jsdelivr.net/foundation/5.0.2/css/foundation.min.css'>
+    <!-- Font Awesome icons (Bootstrap, Foundation, and jQueryUI also supported) -->
+    <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.css'>
+    <style>
+        body {
+            font-family: helvetica;
+            font-size: 14px;
+        }
+
+        #cy {
+            width: 80%;
+            height: 80%;
+            position: absolute;
+            top: 100px;
+
+        }
+
+        h1 {
+            opacity: 0.5;
+            font-size: 1em;
+        }
+    </style>
+
+    <script>
+        var nodeIdGenerator = 1;
+        var currentNode;
+        var currentEdge;
+
+        $(function () {
+
+            var cy = window.cy = cytoscape({
+                container: document.getElementById('cy'),
+
+                boxSelectionEnabled: false,
+                autounselectify: true,
+
+                // layout: {
+                // 	name: 'dagre'
+                // },
+                layout: {
+                    name: 'breadthfirst',
+                    directed: true,
+                    padding: 10
+                },
+                style: cytoscape.stylesheet()
+                        .selector('node')
+                        .css({
+                            'shape': function (ele) {
+
+                                return ele.data('faveShape');
+                            },
+                            'content': 'data(name)',
+                            'text-valign': 'center',
+                            'text-halign': 'center',
+                            'color': '#11479e'
+                        })
+                        .selector(':selected')
+                        .css({
+                            'border-width': 3,
+                            'border-color': '#333'
+                        })
+                        .selector('edge')
+                        .css({
+                            'width': 2,
+                            'target-arrow-shape': 'triangle',
+                            'line-color': '#9dbaea',
+                            'target-arrow-color': '#9dbaea',
+                            'curve-style': 'bezier',
+                            'label': function (ele) {
+                                return ele.data('label');
+                            }
+
+                        }),
+
+//                style: [
+//                    {
+//                        selector: 'node',
+//                        style: {
+//                            'content': 'data(name)',
+//                            'text-opacity': 0.5,
+//                            'text-valign': 'center',
+//                            'text-halign': 'center',
+//                            'background-color': '#11479e',
+//                            'shape': 'data(xxshape)'
+//                        }
+//                    },
+//
+//                    {
+//                        selector: 'edge',
+//                        style: {
+//                            'width': 2,
+//                            'target-arrow-shape': 'triangle',
+//                            'line-color': '#9dbaea',
+//                            'target-arrow-color': '#9dbaea',
+//                            'curve-style': 'bezier',
+//                            'label': 'data(label)'
+//                        }
+//                    }
+//                ],
+
+                elements: {
+                    nodes: [
+                        {data: {id: 'n0', name: 'Person', type: 'root', faveShape: 'ellipse', linkable: 'true'}}
+                    ],
+                    edges: []
+                },
+            });
+
+            cy.on('tap', function (event) {
+                // cyTarget holds a reference to the originator
+                // of the event (core or element)
+                var evtTarget = event.cyTarget;
+
+                if (evtTarget === cy) {
+                    createNode(event.cyPosition.x, event.cyPosition.y);
+                } else {
+
+                    if (evtTarget.isNode()) {
+                        currentNode = evtTarget.id();
+                        document.getElementById('node').style = "display: inline;";
+                        document.getElementById('edge').style = "display: none;";
+                        document.getElementById('label').innerHTML = evtTarget.id();
+                        document.getElementById('name').value = evtTarget.data('name');
+                        setSelectedIndex(document.getElementById('nodeType'), evtTarget.data('type'));
+                    } else if (evtTarget.isEdge()) {
+                        currentEdge = evtTarget.id();
+                        document.getElementById('edge').style = "display: inline;";
+                        document.getElementById('node').style = "display: none;";
+                        document.getElementById('labelId').innerHTML = evtTarget.id();
+                        document.getElementById('labelEdge').innerHTML = evtTarget.data('source') + " -> " + evtTarget.data('target');
+                        document.getElementById('labelName').value = evtTarget.data('value');
+                        setSelectedIndex(document.getElementById('operator'), evtTarget.data('operator'));
+                    }
+
+                }
+            });
+
+            // the default values of each option are outlined below:
+            var defaults = {
+                preview: true, // whether to show added edges preview before releasing selection
+                stackOrder: 4, // Controls stack order of edgehandles canvas element by setting it's z-index
+                handleSize: 10, // the size of the edge handle put on nodes
+                handleColor: '#ff0000', // the colour of the handle and the line drawn from it
+                handleLineType: 'ghost', // can be 'ghost' for real edge, 'straight' for a straight line, or 'draw' for a draw-as-you-go line
+                handleLineWidth: 1, // width of handle line in pixels
+                handleIcon: false, // Pass an Image-object to use as icon on handle. Icons are resized according to zoom and centered in handle.
+                handleNodes: 'node[linkable = "true"]', // selector/filter function for whether edges can be made from a given node
+                hoverDelay: 150, // time spend over a target node before it is considered a target selection
+                cxt: false, // whether cxt events trigger edgehandles (useful on touch)
+                enabled: true, // whether to start the extension in the enabled state
+                toggleOffOnLeave: false, // whether an edge is cancelled by leaving a node (true), or whether you need to go over again to cancel (false; allows multiple edges in one pass)
+                edgeType: function (sourceNode, targetNode) {
+                    // can return 'flat' for flat edges between nodes or 'node' for intermediate node between them
+                    // returning null/undefined means an edge can't be added between the two nodes
+                    return 'flat';
+                },
+                loopAllowed: function (node) {
+                    // for the specified node, return whether edges from itself to itself are allowed
+                    return false;
+                },
+                nodeLoopOffset: -50, // offset for edgeType: 'node' loops
+                nodeParams: function (sourceNode, targetNode) {
+                    // for edges between the specified source and target
+                    // return element object to be passed to cy.add() for intermediary node
+                    return {};
+                },
+                edgeParams: function (sourceNode, targetNode, i) {
+                    // for edges between the specified source and target
+                    // return element object to be passed to cy.add() for edge
+                    // NB: i indicates edge index in case of edgeType: 'node'
+                    return {};
+                },
+                start: function (sourceNode) {
+                    // fired when edgehandles interaction starts (drag on handle)
+                },
+                complete: function (sourceNode, targetNodes, addedEntities) {
+                    // fired when edgehandles is done and entities are added
+                },
+                stop: function (sourceNode) {
+                    // fired when edgehandles interaction is stopped (either complete with added edges or incomplete)
+                }
+            };
+
+            cy.edgehandles(defaults);
+
+
+            // Initialize the editor
+            var editor = new JSONEditor(document.getElementById('editor_holder'),{
+                // Enable fetching schemas via ajax
+                ajax: true,
+
+//                // The schema for the editor
+//                schema: {
+//                    $ref: "person.json",
+//                    format: "grid"
+//                },
+
+                // Seed the form with a starting value
+//                startval: starting_value
+            });
+
+            // Hook up the submit button to log to the console
+            document.getElementById('submit').addEventListener('click',function() {
+                // Get the value from the editor
+                console.log(editor.getValue());
+            });
+
+            // Hook up the Restore to Default button
+            document.getElementById('restore').addEventListener('click',function() {
+                editor.setValue(starting_value);
+            });
+
+            // Hook up the validation indicator to update its
+            // status whenever the editor changes
+            editor.on('change',function() {
+                // Get an array of errors from the validator
+                var errors = editor.validate();
+
+                var indicator = document.getElementById('valid_indicator');
+
+                // Not valid
+                if(errors.length) {
+                    indicator.className = 'label alert';
+                    indicator.textContent = 'not valid';
+                }
+                // Valid
+                else {
+                    indicator.className = 'label success';
+                    indicator.textContent = 'valid';
+                }
+            });
+
+        });
+
+        function createNode(xPos, yPos) {
+            cy.add([{
+                group: "nodes",
+                data: {id: "n" + nodeIdGenerator++, faveShape: 'ellipse', linkable: 'true'},
+
+                position: {x: xPos, y: yPos}
+            }]);
+        }
+        function updateNode() {
+            cy.$('#' + document.getElementById('label').innerHTML).data('name', document.getElementById('name').value);
+            cy.$('#' + document.getElementById('label').innerHTML).data('type', document.getElementById('nodeType').value);
+            console.log(document.getElementById('label').innerHTML);
+            if (document.getElementById('nodeType').value === 'root') {
+                cy.$('#' + document.getElementById('label').innerHTML).data('faveShape', 'ellipse');
+            } else if (document.getElementById('nodeType').value === 'condition') {
+                cy.$('#' + document.getElementById('label').innerHTML).data('faveShape', 'diamond');
+            } else if (document.getElementById('nodeType').value === 'terminal') {
+                cy.$('#' + document.getElementById('label').innerHTML).data('faveShape', 'rectangle');
+                cy.$('#' + document.getElementById('label').innerHTML).data('linkable', 'false');
+            }
+
+        }
+        function updateEdge() {
+            cy.$('#' + document.getElementById('labelId').innerHTML).data('label', document.getElementById('operator')[document.getElementById('operator').selectedIndex].text + " " + document.getElementById('labelName').value);
+            cy.$('#' + document.getElementById('labelId').innerHTML).data('value', document.getElementById('labelName').value);
+            cy.$('#' + document.getElementById('labelId').innerHTML).data('operator', document.getElementById('operator').value);
+        }
+
+        function printGraph() {
+            console.log(JSON.stringify(cy.json().elements));
+        }
+
+        function sendJson() {
+            $.ajax({
+                type: 'POST',
+                url: '/quicktree/trees',
+                data: JSON.stringify(cy.json().elements),
+                success: function(data) { alert('data: ' + data); },
+                contentType: "application/json",
+                dataType: 'json'
+            });
+
+        }
+
+        function setSelectedIndex(select, value) {
+
+            for (var i = 0; i < select.options.length; i++) {
+
+                if (select.options[i].value == value) {
+
+                    select.options[i].selected = true;
+
+                    return;
+
+                }
+
+            }
+
+        }
+
+        function deleteNode() {
+            var node = cy.$('#' + currentNode);
+            cy.remove(node);
+        }
+
+        function deleteEdge() {
+            var edge = cy.$('#' + currentEdge);
+            cy.remove(edge);
+        }
+
+
+
+
+    </script>
+</head>
+
+<body>
+<div class='row'>
+    <div class='medium-12 columns'>
+        <h1>CSS Integration JSON Editor Example</h1>
+    </div>
+</div>
+<div class='row'>
+    <div class='medium-6 columns'>
+        <p>JSON Editor supports these popular CSS frameworks:</p>
+        <ul>
+            <li>Bootstrap 2</li>
+            <li>Bootstrap 3</li>
+            <li>Foundation 3</li>
+            <li>Foundation 4</li>
+            <li>Foundation 5 (shown here)</li>
+            <li>jQuery UI</li>
+        </ul>
+    </div>
+    <div class='medium-6 columns'>
+        <p>JSON Editor supports these popular icon libraries:</p>
+        <ul>
+            <li>Bootstrap 2 Glyphicons</li>
+            <li>Bootstrap 3 Glyphicons</li>
+            <li>Foundicons 2</li>
+            <li>Foundicons 3</li>
+            <li>jQueryUI</li>
+            <li>Font Awesome 3</li>
+            <li>Font Awesome 4 (shown here)</li>
+        </ul>
+    </div>
+</div>
+<div class='row'>
+    <div class='medium-12-columns'>
+        <button id='submit' class='tiny'>Submit (console.log)</button>
+        <button id='restore' class='secondary tiny'>Restore to Default</button>
+        <span id='valid_indicator' class='label'></span>
+    </div>
+</div>
+<div class='row'>
+    <div id='editor_holder' class='medium-12 columns'></div>
+</div>
+<h1>Create your Decision Tree</h1>
+
+<div id="cy" style="border: 5px solid red;"></div>
+<div id="node" style="display: none">
+
+    <label>Selected Node: </label><span id="label"></span>
+    <select id="nodeType">
+        <option value="root">Root</option>
+        <option value="condition">Condition</option>
+        <option value="terminal">Terminal</option>
+
+    </select>
+    <input id="name" type="text" value=""/>
+    <button name="setNodeName" onClick="updateNode()">Update</button>
+    <button name="deleteNode" onClick="deleteNode()">Delete</button>
+</div>
+
+<div id="edge" style="display: none">
+    <label>Selected Edge: </label><span id="labelEdge"></span>
+    <div id="labelId" style="display: none;"></div>
+    <select id="operator">
+        <option value="GREATER_THAN">&gt;</option>
+        <option value="EQUALS">=</option>
+        <option value="LESS_THAN">&lt;</option>
+
+    </select>
+    <input id="labelName" type="text" value=""/>
+    <button name="setEdgeName" onClick="updateEdge()">Update</button>
+    <button name="deleteEdge" onClick="deleteEdge()">Delete</button>
+</div>
+<br/>
+<button name="printJson" onClick="printGraph()">JSON</button>
+<button name="sendJson" onClick="sendJson()">Send To Server</button>
+
+</body>
+
+</html>

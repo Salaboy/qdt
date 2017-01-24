@@ -1,0 +1,275 @@
+{
+  "nodes": [
+    {
+      "data": {
+        "id": "n0",
+        "name": "Person",
+        "type": "root"
+      },
+      "position": {
+        "x": 107.59772151810172,
+        "y": 41.13920840844808
+      },
+      "group": "nodes",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "n1",
+        "name": "age",
+        "type": "condition"
+      },
+      "position": {
+        "x": 112.17257103966043,
+        "y": 93.73872334002428
+      },
+      "group": "nodes",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "n2",
+        "name": "Too Old",
+        "type": "terminal"
+      },
+      "position": {
+        "x": 43.05622656552681,
+        "y": 160.96758664829412
+      },
+      "group": "nodes",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "n3",
+        "name": "city",
+        "type": "condition"
+      },
+      "position": {
+        "x": 162.88172675197592,
+        "y": 148.24477166523474
+      },
+      "group": "nodes",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "n4",
+        "name": "married",
+        "type": "condition"
+      },
+      "position": {
+        "x": 62.72137838963416,
+        "y": 214.7069463572031
+      },
+      "group": "nodes",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "n5",
+        "name": "Doesn't Apply",
+        "type": "terminal"
+
+      },
+      "position": {
+        "x": 216.13712210861948,
+        "y": 223.08031911873874
+      },
+      "group": "nodes",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "n6",
+        "name": "Send Ad 1",
+        "type": "terminal"
+
+      },
+      "position": {
+        "x": 136.51202864366178,
+        "y": 276.1637147620439
+      },
+      "group": "nodes",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "n7",
+        "name": "Send Ad 2",
+        "type": "terminal"
+      },
+      "position": {
+        "x": 20.6132814891122,
+        "y": 275.2789915013222
+      },
+      "group": "nodes",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    }
+  ],
+  "edges": [
+    {
+      "data": {
+        "source": "n0",
+        "target": "n1",
+        "id": "ed568738-529e-4402-b277-7a9231d028e0"
+      },
+      "position": {},
+      "group": "edges",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "source": "n1",
+        "target": "n2",
+        "id": "bed09212-5224-48de-b01d-a905cc16dc67",
+        "label": " > 30",
+        "value": "30",
+        "operator": "GREATER_THAN"
+      },
+      "position": {},
+      "group": "edges",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "source": "n1",
+        "target": "n3",
+        "id": "ba4f26ed-0130-4e26-a1c4-4f0a39bf6227",
+        "label": " < 30",
+        "value": "30",
+        "operator": "LESS_THAN"
+      },
+      "position": {},
+      "group": "edges",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "source": "n3",
+        "target": "n4",
+        "id": "1e8b6749-e612-4a73-963b-c999975e0be2",
+        "label": " = London",
+        "value": "London",
+        "operator": "EQUALS"
+      },
+      "position": {},
+      "group": "edges",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "source": "n3",
+        "target": "n5",
+        "id": "d790b1a9-0a8c-46dc-9db6-3a27107aec71",
+        "label": " = Mendoza",
+        "value": "Mendoza",
+        "operator": "EQUALS"
+      },
+      "position": {},
+      "group": "edges",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "source": "n4",
+        "target": "n6",
+        "id": "6f34f0e6-40be-4053-97b6-7c84e3863fce",
+        "label": " = false",
+        "value": "false",
+        "operator": "EQUALS"
+      },
+      "position": {},
+      "group": "edges",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "source": "n4",
+        "target": "n7",
+        "id": "d219c121-7b5f-4c09-b12b-30765647bac6",
+        "label": " = true",
+        "value": "true",
+        "operator": "EQUALS"
+      },
+      "position": {},
+      "group": "edges",
+      "removed": false,
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbable": true,
+      "classes": ""
+    }
+  ]
+}
